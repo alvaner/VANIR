@@ -158,20 +158,23 @@ function ZB.gen.oxlib(zone)
             '})',
         }, '\n')
     else
-        -- polygon: ox_lib thickness is centred on each point's z; for a 'ground'
-        -- anchor we lift the exported z by half the height so the centred band
-        -- ends up spanning [z, z+height] and matches the preview.
-        local lift = (zone.anchor == 'ground') and (zone.height / 2) or 0.0
+        -- ox_lib's lib.zones.poly flattens a non-planar polygon to ONE z plane,
+        -- so emit a single representative plane + a thickness that spans the full
+        -- vertical range. This keeps the exported zone matching the preview on
+        -- sloped ground (per-vertex z would be silently collapsed by ox_lib).
+        local minZ, maxZ = ZB.zRange(zone.points, zone.height, zone.anchor)
+        local cz = (minZ + maxZ) / 2
+        local thickness = math.max(maxZ - minZ, 0.1)
         local out = {
             ('-- %s - ox_lib poly (Vanir Zone Builder)'):format(name),
             ('local %s = lib.zones.poly({'):format(name),
             '    points = {',
         }
         for _, p in ipairs(zone.points) do
-            out[#out + 1] = ('        vec3(%.2f, %.2f, %.2f),'):format(p.x, p.y, p.z + lift)
+            out[#out + 1] = ('        vec3(%.2f, %.2f, %.2f),'):format(p.x, p.y, cz)
         end
         out[#out + 1] = '    },'
-        out[#out + 1] = ('    thickness = %.1f,'):format(zone.height)
+        out[#out + 1] = ('    thickness = %.1f,'):format(thickness)
         out[#out + 1] = '    debug = false,'
         out[#out + 1] = '    onEnter = function(self) end,'
         out[#out + 1] = '    onExit = function(self) end,'
@@ -268,11 +271,20 @@ function ZB.generate(format, zone)
     return fn(zone)
 end
 
--- Concatenate several zones into one file (used by "Export all")
+-- Concatenate several zones into one file (used by "Export all").
+-- Sanitised names are made unique (foo, foo_2, foo_3) so two zones with the
+-- same name don't shadow each other or overwrite a table key in the output.
 function ZB.generateAll(format, zones)
-    local parts = {}
+    local parts, seen = {}, {}
     for _, z in ipairs(zones) do
-        if ZB.isValid(z) then parts[#parts + 1] = ZB.generate(format, z) end
+        if ZB.isValid(z) then
+            local base = ZB.sanitizeName(z.name)
+            local name, n = base, 2
+            while seen[name] do name = base .. '_' .. n; n = n + 1 end
+            seen[name] = true
+            local zc = { name = name, zoneType = z.zoneType, points = z.points, height = z.height, anchor = z.anchor }
+            parts[#parts + 1] = ZB.generate(format, zc)
+        end
     end
     return table.concat(parts, '\n\n')
 end

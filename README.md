@@ -79,9 +79,10 @@ local downtown = lib.zones.poly({
 ## Notes
 
 - Saving uses the server native `SaveResourceFile`. To restrict who can export, set `Config.RequireAce = true` and grant the ace `vnr_zonebuilder.save` in `server.cfg`.
-- ox_lib `thickness` is centred on the points; for a **ground** anchor the exported z is lifted by half the height so the result matches the preview.
+- ox_lib zones use a single z plane plus a thickness, so a polygon export flattens to one plane spanning the zone's full vertical range (this keeps it matching the preview on sloped ground).
+- Exporting two zones with the same name writes to the same file, so give zones distinct names. **Export ALL** auto-uniquifies names (`foo`, `foo_2`).
 - All colours, keys, grid size and defaults live in `config.lua`.
 
 ---
 
-Made by **Vanir**. If this saved you time, a coffee is appreciated ☕ - link in the release thread.
+Made by **Alvaner** (Vanir).

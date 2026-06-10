@@ -19,10 +19,11 @@ end
 local lastSave = {}
 local COOLDOWN = 2 -- seconds
 
-local function onCooldown(src)
+local function onCooldown(src, op)
+    lastSave[src] = lastSave[src] or {}
     local now = os.time()
-    if lastSave[src] and (now - lastSave[src]) < COOLDOWN then return true end
-    lastSave[src] = now
+    if lastSave[src][op] and (now - lastSave[src][op]) < COOLDOWN then return true end
+    lastSave[src][op] = now
     return false
 end
 
@@ -33,7 +34,7 @@ end)
 RegisterNetEvent('vnr_zb:save', function(name, format, code, jsonStr)
     local src = source
 
-    if onCooldown(src) then
+    if onCooldown(src, 'single') then
         TriggerClientEvent('vnr_zb:saved', src, false)
         return
     end
@@ -71,7 +72,7 @@ end)
 RegisterNetEvent('vnr_zb:saveAll', function(format, code, count)
     local src = source
 
-    if onCooldown(src) then
+    if onCooldown(src, 'all') then
         TriggerClientEvent('vnr_zb:savedAll', src, false)
         return
     end

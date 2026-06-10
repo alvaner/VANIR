@@ -156,8 +156,10 @@ end)
 
 RegisterNetEvent('vnr_zb:saved', function(ok, path)
     if ok then ZB_Notify(L('saved', path)) else ZB_Notify(L('save_failed')) end
+    SendNUIMessage({ action = 'saveResult', ok = ok })
 end)
 
 RegisterNetEvent('vnr_zb:savedAll', function(ok, path, count)
     if ok then ZB_Notify(L('saved_all', count, path)) else ZB_Notify(L('save_failed')) end
+    SendNUIMessage({ action = 'saveResult', ok = ok })
 end)

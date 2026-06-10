@@ -98,6 +98,9 @@
         const snapBtn = $('m-snap');
         snapBtn.classList.toggle('on', !!d.snap);
         snapBtn.textContent = d.snap ? 'On' : 'Off';
+        const valid = !!d.valid;
+        $('m-export').disabled = !valid;
+        $('m-export').title = valid ? '' : 'Add more points to this zone first';
         renderZones(d.zones);
     }
 
@@ -138,6 +141,13 @@
                 break;
             case 'closeMenu':
                 closeMenu();
+                break;
+            case 'saveResult':
+                if (!$('m-result').classList.contains('hidden')) {
+                    $('m-saved').textContent = msg.ok
+                        ? 'Saved to the output/ folder'
+                        : 'Save failed (check server console)';
+                }
                 break;
         }
     });
@@ -187,14 +197,14 @@
     $('m-export').addEventListener('click', () => {
         post('export', { name: $('m-name').value, format }).then((r) => {
             if (!r || r.error) return;
-            showResult(r.code, 'Saved to the resource output/ folder');
+            showResult(r.code, 'Code generated below - saving...');
         });
     });
 
     $('m-exportall').addEventListener('click', () => {
         post('exportAll', { format }).then((r) => {
             if (!r || r.error) return;
-            showResult(r.code, `Exported ${r.count} zone(s) to output/all_zones_${format}.lua`);
+            showResult(r.code, `Generated ${r.count} zone(s) - saving...`);
         });
     });
 

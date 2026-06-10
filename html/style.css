@@ -146,14 +146,6 @@ input[type="text"], input[type="number"] {
 }
 input:focus { border-color: var(--accent-dim); }
 
-.readout {
-    background: var(--bg-solid);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 14px; font-weight: 600; color: var(--accent);
-}
-
 .segmented { display: flex; gap: 6px; }
 .seg {
     flex: 1;
@@ -184,6 +176,8 @@ input:focus { border-color: var(--accent-dim); }
 .btn.small { flex: 0 0 auto; padding: 8px 18px; font-size: 12.5px; background: #222c37; color: var(--text); }
 .btn.small:hover { background: #2c3a48; }
 .btn.small.done { background: #1f7a3d; }
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.btn.primary[disabled]:hover { background: var(--accent); }
 
 .result { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 14px; }
 #m-code {

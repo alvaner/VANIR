@@ -62,7 +62,7 @@ local function getAimCoord()
     local handle = StartExpensiveSynchronousShapeTestLosProbe(
         cam.x, cam.y, cam.z, dest.x, dest.y, dest.z, 1 + 16 + 256, PlayerPedId(), 7)
     local _, hit, coords = GetShapeTestResult(handle)
-    if hit == 1 or hit == true then
+    if hit then
         return vector3(ZB.round(coords.x, 3), ZB.round(coords.y, 3), ZB.round(coords.z, 3))
     end
     return nil
@@ -123,7 +123,7 @@ end
 local function snapshot()
     local zs = {}
     for i, z in ipairs(Editor.zones) do zs[i] = copyZone(z) end
-    return { zones = zs, idx = Editor.idx }
+    return { zones = zs, idx = Editor.idx, seq = Editor.seq }
 end
 
 local function pushHistory()
@@ -137,6 +137,7 @@ local function restore(snap)
     for i, z in ipairs(snap.zones) do zs[i] = copyZone(z) end
     Editor.zones = zs
     Editor.idx = math.max(1, math.min(snap.idx, #zs))
+    Editor.seq = snap.seq or Editor.seq
     Editor.grabbedIndex = nil
 end
 
@@ -149,6 +150,7 @@ function ZB_CurrentZone() return cur() end
 local function setActive(state)
     Editor.active = state
     if state then
+        Editor.cleanView = false -- always start with the HUD visible
         if ZB_ShowHud then ZB_ShowHud(true) end
         refresh()
         notify(L('editor_on', Config.Keys.place.label, Config.Keys.menu.label))
@@ -165,6 +167,12 @@ RegisterCommand(Config.ToggleCommand, function()
     setActive(not Editor.active)
 end, false)
 RegisterKeyMapping(Config.ToggleCommand, 'Toggle Vanir Zone Builder', 'keyboard', Config.ToggleKey)
+
+-- one-time hint in the client console so players know the open key
+CreateThread(function()
+    Wait(1500)
+    print(('[vnr_zonebuilder] Press %s to open the zone builder (rebindable in Settings > Key Bindings > FiveM).'):format(Config.ToggleKey))
+end)
 
 ----------------------------------------------------------------------
 -- new zone / type switching
@@ -463,6 +471,7 @@ CreateThread(function()
             local wantHud = (not paused) and (not Editor.cleanView)
             if wantHud ~= hudVisible then
                 hudVisible = wantHud
+                if not wantHud and Editor.menuOpen then ZB_CloseMenu() end
                 SendNUIMessage({ action = 'hud', show = wantHud })
                 if wantHud then ZB_UpdateHud() end
             end
@@ -472,6 +481,9 @@ CreateThread(function()
             else
                 local active = cur()
                 if not Editor.menuOpen then
+                    DisableControlAction(0, 36, true) -- INPUT_DUCK (X is our feet/aim toggle)
+                    DisableControlAction(0, 26, true) -- INPUT_LOOK_BEHIND (C is our select-zone)
+                    DisableControlAction(0, 79, true) -- INPUT_VEH_LOOK_BEHIND
                     local c = (Editor.mode == 'aim') and getAimCoord() or getFeetCoord()
                     Editor.previewCoord = c
                     if Editor.grabbedIndex and c and active.points[Editor.grabbedIndex] then
