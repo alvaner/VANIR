@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- Live HUD overlay (no focus) -->
+    <div id="hud" class="hud hidden">
+        <div class="hud-brand"><span class="dot"></span>VANIR<span class="brand-sub">zone builder</span></div>
+        <div class="hud-rows">
+            <div class="row"><span class="k">Zone</span><span id="h-name" class="v">my_zone</span></div>
+            <div class="row"><span class="k">Type</span><span id="h-type" class="v">polygon</span></div>
+            <div class="row"><span class="k">Points</span><span id="h-count" class="v accent">0</span></div>
+            <div class="row"><span class="k">Area</span><span id="h-area" class="v">0 m²</span></div>
+            <div class="row"><span class="k">Mode</span><span id="h-mode" class="v">feet</span></div>
+            <div class="row"><span class="k">Height</span><span id="h-height" class="v">4.0 m - center</span></div>
+            <div class="row"><span class="k">Snap</span><span id="h-snap" class="v">off</span></div>
+        </div>
+        <div class="hud-legend" id="h-legend"></div>
+    </div>
+
+    <!-- Export / zone-manager menu (focused) -->
+    <div id="menu" class="menu-overlay hidden">
+        <div class="menu-card">
+            <div class="menu-head">
+                <div class="title"><span class="dot"></span>Zone Builder</div>
+                <button class="icon-btn" id="m-close" title="Close (Esc)">✕</button>
+            </div>
+
+            <label class="field">
+                <span>Zone name</span>
+                <input id="m-name" type="text" spellcheck="false" placeholder="my_zone" />
+            </label>
+
+            <div class="field">
+                <span>Type</span>
+                <div class="segmented" id="m-type">
+                    <button data-type="poly" class="seg active">Polygon</button>
+                    <button data-type="circle" class="seg">Circle</button>
+                    <button data-type="box" class="seg">Box</button>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label class="field grow">
+                    <span>Height (m)</span>
+                    <input id="m-height" type="number" min="0.5" step="0.5" value="4.0" />
+                </label>
+                <div class="field grow">
+                    <span>Anchor</span>
+                    <div class="segmented" id="m-anchor">
+                        <button data-anchor="center" class="seg active">Center</button>
+                        <button data-anchor="ground" class="seg">Ground</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <span>Snap</span>
+                    <button class="toggle" id="m-snap">Off</button>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div><span class="mk">Area</span><span id="m-area" class="mv">0 m²</span></div>
+                <div><span class="mk">Perimeter</span><span id="m-perim" class="mv">0 m</span></div>
+                <div><span class="mk">Points</span><span id="m-count" class="mv">0</span></div>
+            </div>
+
+            <div class="field">
+                <span>Export format</span>
+                <div class="segmented" id="m-format">
+                    <button data-format="oxlib" class="seg active">ox_lib</button>
+                    <button data-format="polyzone" class="seg">PolyZone</button>
+                    <button data-format="native" class="seg">Lua table</button>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn primary" id="m-export">Export &amp; Save</button>
+                <button class="btn" id="m-exportall">Export ALL</button>
+            </div>
+            <div class="actions">
+                <button class="btn ghost" id="m-newzone">+ New zone</button>
+                <button class="btn ghost" id="m-clear">Clear points</button>
+            </div>
+
+            <div class="zones-wrap">
+                <div class="zones-head">Zones (<span id="z-count">0</span>) - click to edit</div>
+                <div id="m-zones" class="zones"></div>
+            </div>
+
+            <div id="m-result" class="result hidden">
+                <textarea id="m-code" readonly spellcheck="false"></textarea>
+                <div class="result-actions">
+                    <button class="btn small" id="m-copy">Copy</button>
+                    <span id="m-saved" class="saved-note"></span>
+                </div>
+            </div>
+
+            <div class="foot">Vanir Zone Builder - free - by Alvaner</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
