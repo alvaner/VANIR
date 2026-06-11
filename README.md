@@ -4,6 +4,8 @@
 
 Free. Standalone. Zero dependencies. Works on any framework (ESX, QBCore, Qbox, or none).
 
+<img src="media/zone.png" alt="A zone drawn in-game" width="640">
+
 <table>
 <tr>
 <td valign="top"><img src="media/hud.png" alt="In-game HUD" width="250"></td>
